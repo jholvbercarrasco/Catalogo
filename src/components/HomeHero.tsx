@@ -5,23 +5,23 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const offers = [
   {
     id: 1,
-    title: "Ofertas de Temporada",
-    subtitle: "Hasta 40% de descuento en vestidos seleccionados",
-    image: "https://picsum.photos/seed/offer1/1920/1080",
+    title: "Colección Ropa Mujer",
+    subtitle: "Descubre nuestra selección de vestidos y blusas",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1920&h=1080",
     color: "bg-blue-600"
   },
   {
     id: 2,
-    title: "Nueva Colección Plus Size",
-    subtitle: "Estilo y comodidad sin límites",
-    image: "https://picsum.photos/seed/offer2/1920/1080",
+    title: "Joyería Fina",
+    subtitle: "Detalles que deslumbran",
+    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=1280&h=720",
     color: "bg-purple-600"
   },
   {
     id: 3,
-    title: "Zapatos Exclusivos",
-    subtitle: "Calidad artesanal en cada paso",
-    image: "https://picsum.photos/seed/offer3/1920/1080",
+    title: "Artículos de Hogar",
+    subtitle: "Confort y estilo para tu espacio",
+    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1920&h=1080",
     color: "bg-amber-600"
   }
 ];
