@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Product } from '../data/products';
-import { X, ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Check, Ruler, ArrowLeft } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Check, Ruler, ArrowLeft, Share2, ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface ProductModalProps {
@@ -12,10 +12,39 @@ interface ProductModalProps {
 export function ProductModal({ product, onClose, onAddToCart }: ProductModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes?.[0]);
-  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string; sku?: string } | undefined>(product.colors?.[0]);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string; sku?: string; image?: string } | undefined>(undefined);
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const isProgrammaticScroll = React.useRef(false);
+  const scrollTimeout = React.useRef<NodeJS.Timeout>();
+  const [showShareToast, setShowShareToast] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Mira este producto: ${product.title}`,
+          text: product.description,
+          url: url,
+        });
+      } catch (error) {
+        // If user cancels share, just log it or ignore
+        console.log('Error sharing:', error);
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      try {
+        await navigator.clipboard.writeText(url);
+        setShowShareToast(true);
+        setTimeout(() => setShowShareToast(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    }
+  };
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -31,12 +60,26 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
       const container = scrollRef.current;
       const scrollAmount = container.offsetWidth * currentImageIndex;
       if (Math.abs(container.scrollLeft - scrollAmount) > 10) {
+        isProgrammaticScroll.current = true;
         container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+        
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        scrollTimeout.current = setTimeout(() => {
+          isProgrammaticScroll.current = false;
+        }, 600); // Increased based timeout
       }
     }
   }, [currentImageIndex]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (isProgrammaticScroll.current) {
+      // Extend timeout while actively scrolling programmatically
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        isProgrammaticScroll.current = false;
+      }, 150);
+      return;
+    }
     const container = e.currentTarget;
     const index = Math.round(container.scrollLeft / container.offsetWidth);
     if (index !== currentImageIndex && index >= 0 && index < product.images.length) {
@@ -52,9 +95,24 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
     setCurrentImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
   };
 
-  const discount = product.originalPrice && product.originalPrice > product.price
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const selectedVariant = product.variants?.find(v => v.size === selectedSize);
+  const currentPrice = selectedVariant?.price ?? product.price;
+  const currentOriginalPrice = selectedVariant?.originalPrice ?? product.originalPrice;
+  const currentSku = selectedVariant?.sku ?? selectedColor?.sku ?? product.sku;
+  const currentInStock = selectedVariant ? (selectedVariant.inStock ?? true) : product.inStock;
+
+  const currentStockCount = selectedVariant?.stockCount ?? product.stockCount;
+  const currentColors = selectedVariant?.colors ?? product.colors;
+
+  const discount = currentOriginalPrice && currentOriginalPrice > currentPrice
+    ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
     : 0;
+
+  const shortDescription = product.description.indexOf('.') !== -1 
+    ? product.description.substring(0, product.description.indexOf('.') + 1) 
+    : product.description;
+  const hasMoreText = product.description.length > shortDescription.length;
+  const quantityLabel = product.category === 'Hogar' ? 'Cantidad de artículos:' : 'Cantidad de prendas:';
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6">
@@ -75,14 +133,33 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         className="relative w-full max-w-5xl bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] sm:h-auto sm:max-h-[90vh]"
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 bg-white/90 backdrop-blur-sm hover:bg-gray-100 rounded-full text-gray-800 shadow-md transition-all active:scale-90 border border-gray-100"
-          aria-label="Cerrar ventana"
-        >
-          <X size={20} />
-        </button>
+        {/* Modal Header Actions */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          {showShareToast && (
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="bg-black/80 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm"
+            >
+              Enlace copiado
+            </motion.div>
+          )}
+          <button
+            onClick={handleShare}
+            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-gray-100 rounded-full text-gray-800 shadow-md transition-all active:scale-90 border border-gray-100"
+            aria-label="Compartir producto"
+          >
+            <Share2 size={20} />
+          </button>
+          <button
+            onClick={onClose}
+            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-gray-100 rounded-full text-gray-800 shadow-md transition-all active:scale-90 border border-gray-100"
+            aria-label="Cerrar ventana"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
         {/* Image Gallery Section */}
         <div className="w-full md:w-1/2 bg-gray-50 p-0 sm:p-6 flex flex-col items-center justify-start sm:justify-center overflow-hidden sm:overflow-visible flex-shrink-0">
@@ -163,15 +240,15 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
           </div>
           
           <h2 className="text-lg sm:text-3xl font-bold text-gray-900 mt-1 mb-0.5">
-            {product.title} <span className="text-xs sm:text-base font-normal text-gray-400 ml-1">#{selectedColor?.sku || product.sku}</span>
+            {product.title} <span className="text-xs sm:text-base font-normal text-gray-400 ml-1">#{currentSku}</span>
           </h2>
           
           <div className="flex items-center gap-3 mb-2">
             <div className="flex flex-col">
-              {product.originalPrice && product.originalPrice > product.price && (
+              {currentOriginalPrice && currentOriginalPrice > currentPrice && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-lg text-gray-400 line-through">
-                    S/ {product.originalPrice.toFixed(2)}
+                    S/ {currentOriginalPrice.toFixed(2)}
                   </span>
                   <span className="bg-red-600 text-white text-[9px] sm:text-xs font-bold px-1.5 py-0.5 rounded">
                     -{discount}% DCTO
@@ -179,18 +256,26 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                 </div>
               )}
               <span className="text-xl sm:text-3xl font-bold text-blue-600">
-                S/ {product.price.toFixed(2)}
+                {product.variants && product.variants.length > 0 && !selectedSize && <span className="text-sm sm:text-lg text-gray-500 font-normal mr-1.5">Desde</span>}
+                S/ {currentPrice.toFixed(2)}
               </span>
             </div>
-            {product.inStock === false && (
-              <span className="bg-gray-100 text-gray-600 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full border border-gray-200 uppercase tracking-wider">
-                Agotado
-              </span>
-            )}
           </div>
 
-          <div className="prose prose-sm sm:prose-base text-gray-600 mb-3 sm:mb-8 bg-gray-50 p-2 sm:p-4 rounded-xl border border-gray-100">
-            <p className="leading-snug italic text-[11px] sm:text-base">{product.description}</p>
+          <div className="prose prose-sm sm:prose-base text-gray-600 mb-3 sm:mb-8 bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-100 flex flex-col items-start transition-all">
+            <p className="leading-snug italic text-[11px] sm:text-base whitespace-pre-line m-0">
+              {isDescriptionExpanded ? product.description : shortDescription}
+            </p>
+            {hasMoreText && (
+              <button 
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="text-blue-600 hover:text-blue-700 text-[11px] sm:text-sm font-semibold flex items-center gap-1 mt-2 cursor-pointer transition-colors"
+                aria-expanded={isDescriptionExpanded}
+              >
+                {isDescriptionExpanded ? 'Ocultar descripción' : 'Ver más'}
+                <ChevronDown size={14} className={`transition-transform duration-300 ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
+              </button>
+            )}
           </div>
 
           <div className="space-y-3 sm:space-y-6 mb-4 sm:mb-8">
@@ -202,7 +287,27 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                   {product.sizes.map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => {
+                        setSelectedSize(size);
+                        const variant = product.variants?.find(v => v.size === size);
+                        if (variant && variant.colors) {
+                          if (!variant.colors.find(c => c.name === selectedColor?.name)) {
+                            setSelectedColor(undefined);
+                          }
+                        } else if (product.colors) {
+                          if (!product.colors.find(c => c.name === selectedColor?.name)) {
+                            setSelectedColor(undefined);
+                          }
+                        } else {
+                          setSelectedColor(undefined);
+                        }
+                        if (variant && variant.image) {
+                          const imgIdx = product.images.findIndex(img => img === variant.image);
+                          if (imgIdx !== -1) {
+                            setCurrentImageIndex(imgIdx);
+                          }
+                        }
+                      }}
                       className={`min-w-[40px] sm:min-w-[48px] h-10 sm:h-12 flex items-center justify-center rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                         selectedSize === size 
                           ? 'border-blue-600 bg-blue-50 text-blue-600' 
@@ -240,24 +345,22 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
             )}
 
             {/* Color Selector */}
-            {product.colors && (
+            {currentColors && (
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Color: {selectedColor?.name}</label>
                 <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color, idx) => (
+                  {currentColors.map((color, idx) => (
                     <button
                       key={color.name}
                       onClick={() => {
                         setSelectedColor(color);
-                        if (idx < product.images.length) {
-                          setCurrentImageIndex(idx);
-                          
-                          // Scroll thumbnail container into view if needed
-                          if (scrollRef.current) {
-                            const container = scrollRef.current;
-                            const scrollAmount = container.offsetWidth * idx;
-                            container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+                        if (color.image) {
+                          const imgIdx = product.images.findIndex(img => img === color.image);
+                          if (imgIdx !== -1) {
+                            setCurrentImageIndex(imgIdx);
                           }
+                        } else if (idx < product.images.length) {
+                          setCurrentImageIndex(idx);
                         }
                       }}
                       className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -279,24 +382,48 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
             )}
 
             {/* Quantity Selector */}
-            <div className={product.inStock === false ? 'opacity-50 pointer-events-none' : ''}>
-              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2">Cantidad de Prendas:</label>
+            <div className={currentInStock === false ? 'opacity-50 pointer-events-none' : ''}>
+              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2">{quantityLabel}</label>
               <div className="flex items-center gap-3 bg-gray-50 w-fit p-1 rounded-xl border border-gray-100">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={product.inStock === false}
+                  disabled={currentInStock === false}
                   className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white hover:text-blue-600 rounded-lg transition-all text-gray-500"
                 >
                   <Minus size={16} />
                 </button>
                 <span className="text-sm sm:text-lg font-bold text-gray-900 w-6 text-center">{quantity}</span>
                 <button 
-                  onClick={() => setQuantity(quantity + 1)}
-                  disabled={product.inStock === false}
-                  className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-white hover:text-blue-600 rounded-lg transition-all text-gray-500"
+                  onClick={() => {
+                    if (currentStockCount !== undefined && quantity >= currentStockCount) {
+                      return;
+                    }
+                    setQuantity(quantity + 1);
+                  }}
+                  disabled={currentInStock === false || (currentStockCount !== undefined && quantity >= currentStockCount)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all ${
+                    currentStockCount !== undefined && quantity >= currentStockCount 
+                      ? 'text-gray-300 cursor-not-allowed' 
+                      : 'hover:bg-white hover:text-blue-600 text-gray-500'
+                  }`}
                 >
                   <Plus size={16} />
                 </button>
+              </div>
+              <div className="mt-2.5">
+                {currentInStock === false ? (
+                  <span className="text-gray-500 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
+                    Agotado
+                  </span>
+                ) : currentStockCount !== undefined && currentStockCount > 0 ? (
+                  <span className="text-green-600 text-[11px] sm:text-xs font-medium">
+                    Stock disponible: {currentStockCount} unidades
+                  </span>
+                ) : (
+                  <span className="text-green-600 text-[11px] sm:text-xs font-medium">
+                    Disponible
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -304,15 +431,17 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
           <div className="mt-auto pt-4 sm:pt-6 border-t border-gray-100 pb-safe space-y-3 hidden sm:block">
             <button 
               onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor)}
-              disabled={product.inStock === false}
+              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)}
               className={`w-full flex items-center justify-center gap-2 py-4 px-8 rounded-xl font-bold text-lg transition-colors shadow-sm ${
-                product.inStock === false
+                currentInStock === false
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow-md'
               }`}
             >
               <ShoppingCart size={20} />
-              {product.inStock === false ? 'Producto Agotado' : 'Añadir a mi pedido'}
+              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : 'Añadir a mi pedido'}
             </button>
             
             <button 
@@ -334,15 +463,17 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
           <div className="flex flex-col gap-1.5">
             <button 
               onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor)}
-              disabled={product.inStock === false}
+              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)}
               className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-base shadow-lg ${
-                product.inStock === false
+                currentInStock === false
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
                   : 'bg-blue-600 active:bg-blue-700 text-white shadow-blue-500/20'
               }`}
             >
               <ShoppingCart size={18} />
-              {product.inStock === false ? 'Producto Agotado' : 'Añadir a mi pedido'}
+              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : 'Añadir a mi pedido'}
             </button>
             <button 
               onClick={onClose}

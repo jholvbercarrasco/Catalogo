@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Shirt, Footprints, Sparkles, Gift } from 'lucide-react';
+import { Shirt, Home, Sparkles, Gift } from 'lucide-react';
 
 interface CategoryBarProps {
   onSelectCategory: (category: string, subcategory?: string) => void;
@@ -7,11 +7,10 @@ interface CategoryBarProps {
 }
 
 const categories = [
-  { name: 'Plus Size', icon: <Users size={18} /> },
-  { name: 'Vestidos', icon: <Shirt size={18} /> },
-  { name: 'Zapatos', icon: <Footprints size={18} /> },
+  { name: 'Ropa Mujer', icon: <Shirt size={18} /> },
+  { name: 'Ropa Hombre', icon: <Shirt size={18} /> },
+  { name: 'Hogar', icon: <Home size={18} /> },
   { name: 'Joyería', icon: <Sparkles size={18} /> },
-  { name: 'Regalos', icon: <Gift size={18} /> },
 ];
 
 export function CategoryBar({ onSelectCategory, activeCategory }: CategoryBarProps) {

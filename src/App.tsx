@@ -7,13 +7,14 @@ import { CartDrawer, CartItem } from './components/CartDrawer';
 import { HomeHero } from './components/HomeHero';
 import { CategoryBar } from './components/CategoryBar';
 import { Store, ShoppingCart, Search, Menu, X, ArrowRight, ShieldCheck, Truck, Headphones, CheckCircle2 } from 'lucide-react';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 type View = 'home' | 'catalog';
 
 import { STORE_CONFIG } from './constants';
 
 export default function App() {
+  const [appProducts, setAppProducts] = useState<Product[]>(products);
   const [view, setView] = useState<View>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -21,6 +22,117 @@ export default function App() {
   const [filter, setFilter] = useState<{ category: string; subcategory?: string }>({ category: 'Todos' });
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [sortOrder, setSortOrder] = useState<'relevancia' | 'precio-asc' | 'precio-desc'>('relevancia');
+
+  // Check for shared product in URL on initial load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('product');
+    if (productId) {
+      const product = appProducts.find(p => p.id === productId);
+      if (product) {
+        setSelectedProduct(product);
+      }
+    }
+  }, [appProducts]);
+
+  // Fetch live inventory
+  useEffect(() => {
+    fetch('https://script.google.com/macros/s/AKfycbxeGWuAITnNlFFjTcmbTWKydLDlD-qjDYbdTUHrQcBC6UV-8gEE-EcWQUhMZ66pVfdIKQ/exec')
+      .then(async res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return res.json();
+        } else {
+          // If it's not JSON, it might be the Google Login HTML page
+          const text = await res.text();
+          throw new Error("La API no devolvió un JSON. Asegúrate de configurar el acceso a 'Cualquier persona' en tu Google Apps Script.");
+        }
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAppProducts(prev => prev.map(product => {
+            const hasVariants = product.variants && product.variants.length > 0;
+            let productUpdates = {};
+            let variantsUpdates = [];
+
+            if (hasVariants) {
+              let anyVariantInStock = false;
+              variantsUpdates = product.variants!.map(v => {
+                const variantRemoteItem = data.find(item => item["Codigo"] === v.sku);
+                if (variantRemoteItem) {
+                  const stockVal = variantRemoteItem["Stock Actual"];
+                  let parsedStock = 0;
+                  if (typeof stockVal === 'number') {
+                    parsedStock = stockVal;
+                  } else if (typeof stockVal === 'string') {
+                    parsedStock = parseInt(stockVal, 10);
+                  }
+                  const inStock = !isNaN(parsedStock) && parsedStock > 0;
+                  const stockCount = inStock ? parsedStock : 0;
+                  if (inStock) anyVariantInStock = true;
+                  
+                  const priceStr = variantRemoteItem["Precio de venta"];
+                  let parsedPrice = v.price;
+                  if (typeof priceStr === 'number') {
+                    parsedPrice = priceStr;
+                  } else if (priceStr && typeof priceStr === 'string') {
+                    const numericPrice = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+                    if (!isNaN(numericPrice)) {
+                      parsedPrice = numericPrice;
+                    }
+                  }
+                  return { ...v, inStock, stockCount, price: parsedPrice };
+                }
+                return v;
+              });
+
+              productUpdates = {
+                variants: variantsUpdates,
+                inStock: anyVariantInStock,
+                stockCount: variantsUpdates.reduce((acc, curr) => acc + (curr.stockCount || 0), 0)
+              };
+            }
+
+            const remoteItem = data.find(item => item["Codigo"] === product.sku);
+            if (remoteItem) {
+              const stockVal = remoteItem["Stock Actual"];
+              let parsedStock = 0;
+              if (typeof stockVal === 'number') {
+                parsedStock = stockVal;
+              } else if (typeof stockVal === 'string') {
+                parsedStock = parseInt(stockVal, 10);
+              }
+              const inStock = !isNaN(parsedStock) && parsedStock > 0;
+              const stockCount = inStock ? parsedStock : 0;
+              
+              const priceStr = remoteItem["Precio de venta"];
+              let parsedPrice = product.price;
+              if (typeof priceStr === 'number') {
+                parsedPrice = priceStr;
+              } else if (priceStr && typeof priceStr === 'string') {
+                const numericPrice = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+                if (!isNaN(numericPrice)) {
+                  parsedPrice = numericPrice;
+                }
+              }
+
+              return {
+                ...product,
+                inStock,
+                stockCount,
+                price: parsedPrice,
+                ...productUpdates
+              };
+            }
+
+            return Object.keys(productUpdates).length > 0 ? { ...product, ...productUpdates } : product;
+          }));
+        }
+      })
+      .catch(err => console.error("Error fetching inventory:", err.message));
+  }, []);
 
   // Reset scroll position when view or filter changes
   useEffect(() => {
@@ -33,7 +145,7 @@ export default function App() {
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   const featuredProducts = useMemo(() => {
-    return products
+    return appProducts
       .filter(p => p.originalPrice && p.originalPrice > p.price)
       .map(p => ({
         ...p,
@@ -41,11 +153,11 @@ export default function App() {
       }))
       .sort((a, b) => b.discountPercent - a.discountPercent)
       .slice(0, 6);
-  }, []);
+  }, [appProducts]);
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = normalize(searchQuery);
-    return products
+    return appProducts
       .filter((p) => {
         const matchesCategory = filter.category === 'Todos' || p.category === filter.category;
         const matchesSubcategory = !filter.subcategory || p.subcategory === filter.subcategory;
@@ -54,12 +166,18 @@ export default function App() {
         return matchesCategory && matchesSubcategory && matchesSearch;
       })
       .sort((a, b) => {
+        if (sortOrder === 'precio-asc') {
+          return a.price - b.price;
+        } else if (sortOrder === 'precio-desc') {
+          return b.price - a.price;
+        }
+        
         const order: Record<string, number> = { 'Mujeres': 1, 'Hombre': 2 };
         const valA = order[a.subcategory || ''] || 99;
         const valB = order[b.subcategory || ''] || 99;
         return valA - valB;
       });
-  }, [filter, searchQuery]);
+  }, [appProducts, filter, searchQuery, sortOrder]);
 
   const handleSelectCategory = (category: string, subcategory?: string) => {
     setFilter({ category, subcategory });
@@ -75,13 +193,19 @@ export default function App() {
 
       if (existingIndex > -1) {
         const newCart = [...prev];
-        newCart[existingIndex] = { 
-          ...newCart[existingIndex], 
-          quantity: newCart[existingIndex].quantity + quantity 
-        };
+        const currentQty = newCart[existingIndex].quantity;
+        const maxAllowed = product.stockCount !== undefined ? product.stockCount : Infinity;
+        const addedQty = Math.min(quantity, maxAllowed - currentQty);
+        if (addedQty > 0) {
+          newCart[existingIndex] = { 
+            ...newCart[existingIndex], 
+            quantity: currentQty + addedQty 
+          };
+        }
         return newCart;
       }
-      return [...prev, { ...product, quantity, selectedSize, selectedColor }];
+      const initialQty = product.stockCount !== undefined ? Math.min(quantity, product.stockCount) : quantity;
+      return [...prev, { ...product, quantity: initialQty, selectedSize, selectedColor }];
     });
     setSelectedProduct(null);
     setIsCartOpen(true);
@@ -91,7 +215,11 @@ export default function App() {
     setCart(prev => prev.map(item => {
       const itemKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}`;
       if (itemKey === cartKey) {
-        const newQty = Math.max(1, item.quantity + delta);
+        let newQty = item.quantity + delta;
+        if (item.stockCount !== undefined) {
+          newQty = Math.min(newQty, item.stockCount);
+        }
+        newQty = Math.max(1, newQty);
         return { ...item, quantity: newQty };
       }
       return item;
@@ -197,9 +325,9 @@ export default function App() {
                     setFilter({ category: 'Todos' });
                     setView('catalog');
                   }}
-                  className="flex items-center gap-2 text-blue-600 font-semibold hover:underline"
+                  className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-blue-600 text-sm font-semibold rounded-full shadow-md hover:bg-gray-50 hover:text-blue-700 transition-all duration-300 animate-bounce"
                 >
-                  Ver Catálogo completo <ArrowRight size={18} />
+                  Ver Catálogo completo <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
@@ -212,6 +340,15 @@ export default function App() {
                   />
                 ))}
               </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-center">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-bold shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-black hover:scale-105 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-300"
+              >
+                Ver Categorías de Productos <ArrowRight size={18} />
+              </button>
             </div>
 
             {/* Why Choose Us */}
@@ -328,64 +465,90 @@ export default function App() {
                   Limpiar filtros
                 </button>
               )}
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-500">Ordenar por:</span>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as any)}
+                  className="text-sm font-medium text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-sm"
+                >
+                  <option value="relevancia">Relevancia</option>
+                  <option value="precio-asc">Menor a mayor precio</option>
+                  <option value="precio-desc">Mayor a menor precio</option>
+                </select>
+              </div>
             </div>
 
             {filteredProducts.length > 0 ? (
               <div className="space-y-12">
-                {filter.category === 'Todos' ? (
-                  // Group by Category when viewing all
-                  Array.from(new Set(filteredProducts.map(p => p.category))).map(cat => {
-                    const catProducts = filteredProducts.filter(p => p.category === cat);
-                    return (
-                      <div key={cat} className="space-y-6">
-                        <div className="flex items-center gap-4">
-                          <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">
-                            {cat}
-                          </h2>
-                          <div className="h-[1px] flex-grow bg-gray-200"></div>
-                        </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                          {catProducts.map((product) => (
-                            <ProductCard 
-                              key={product.id} 
-                              product={product} 
-                              onClick={() => setSelectedProduct(product)} 
-                              onAddToCart={addToCart}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  // Group by Subcategory when a category is selected
-                  Array.from(new Set(filteredProducts.map(p => p.subcategory))).map(sub => {
-                    const subProducts = filteredProducts.filter(p => p.subcategory === sub);
-                    if (subProducts.length === 0) return null;
-                    
-                    return (
-                      <div key={sub || 'otros'} className="space-y-6">
-                        {sub && (
+                {sortOrder === 'relevancia' ? (
+                  filter.category === 'Todos' ? (
+                    // Group by Category when viewing all
+                    Array.from(new Set(filteredProducts.map(p => p.category))).map(cat => {
+                      const catProducts = filteredProducts.filter(p => p.category === cat);
+                      return (
+                        <div key={cat} className="space-y-6">
                           <div className="flex items-center gap-4">
-                            <h2 className="text-xl font-bold text-gray-800 bg-blue-50 px-4 py-1 rounded-lg border border-blue-100">
-                              {sub}
+                            <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">
+                              {cat}
                             </h2>
                             <div className="h-[1px] flex-grow bg-gray-200"></div>
                           </div>
-                        )}
-                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                          {subProducts.map((product) => (
-                            <ProductCard 
-                              key={product.id} 
-                              product={product} 
-                              onClick={() => setSelectedProduct(product)} 
-                              onAddToCart={addToCart}
-                            />
-                          ))}
+                          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                            {catProducts.map((product) => (
+                              <ProductCard 
+                                key={product.id} 
+                                product={product} 
+                                onClick={() => setSelectedProduct(product)} 
+                                onAddToCart={addToCart}
+                              />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })
+                  ) : (
+                    // Group by Subcategory when a category is selected
+                    Array.from(new Set(filteredProducts.map(p => p.subcategory))).map(sub => {
+                      const subProducts = filteredProducts.filter(p => p.subcategory === sub);
+                      if (subProducts.length === 0) return null;
+                      
+                      return (
+                        <div key={sub || 'otros'} className="space-y-6">
+                          {sub && (
+                            <div className="flex items-center gap-4">
+                              <h2 className="text-xl font-bold text-gray-800 bg-blue-50 px-4 py-1 rounded-lg border border-blue-100">
+                                {sub}
+                              </h2>
+                              <div className="h-[1px] flex-grow bg-gray-200"></div>
+                            </div>
+                          )}
+                          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                            {subProducts.map((product) => (
+                              <ProductCard 
+                                key={product.id} 
+                                product={product} 
+                                onClick={() => setSelectedProduct(product)} 
+                                onAddToCart={addToCart}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                    {filteredProducts.map((product) => (
+                      <ProductCard 
+                        key={product.id} 
+                        product={product} 
+                        onClick={() => setSelectedProduct(product)} 
+                        onAddToCart={addToCart}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             ) : (

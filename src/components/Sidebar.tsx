@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronDown, ChevronRight, User, Users, Shirt, Footprints, Sparkles, Gift } from 'lucide-react';
+import { X, ChevronDown, ChevronRight, Home, Shirt, Sparkles, Gift } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,27 +16,23 @@ interface CategoryItem {
 
 const categories: CategoryItem[] = [
   { 
-    name: 'Plus Size', 
-    icon: <Users size={20} />, 
-    subcategories: ['Hombre', 'Mujeres'] 
+    name: 'Ropa Mujer', 
+    icon: <Shirt size={20} />, 
+    subcategories: ['Tallas Grandes'] 
   },
   { 
-    name: 'Vestidos', 
-    icon: <Shirt size={20} /> 
+    name: 'Ropa Hombre', 
+    icon: <Shirt size={20} />, 
+    subcategories: ['Polos'] 
   },
   { 
-    name: 'Zapatos', 
-    icon: <Footprints size={20} />, 
-    subcategories: ['Hombre', 'Mujeres'] 
+    name: 'Hogar', 
+    icon: <Home size={20} /> 
   },
   { 
     name: 'Joyería', 
     icon: <Sparkles size={20} /> 
-  },
-  { 
-    name: 'Regalos', 
-    icon: <Gift size={20} /> 
-  },
+  }
 ];
 
 export function Sidebar({ isOpen, onClose, onSelectCategory }: SidebarProps) {

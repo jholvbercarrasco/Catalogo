@@ -136,8 +136,16 @@ export function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, onRemove,
                               </button>
                               <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
                               <button 
-                                onClick={() => onUpdateQuantity(cartKey, 1)}
-                                className="p-1 hover:text-blue-600 transition-colors"
+                                onClick={() => {
+                                  if (item.stockCount !== undefined && item.quantity >= item.stockCount) return;
+                                  onUpdateQuantity(cartKey, 1);
+                                }}
+                                disabled={item.stockCount !== undefined && item.quantity >= item.stockCount}
+                                className={`p-1 transition-colors ${
+                                  item.stockCount !== undefined && item.quantity >= item.stockCount 
+                                    ? 'text-gray-300 cursor-not-allowed' 
+                                    : 'hover:text-blue-600'
+                                }`}
                               >
                                 <Plus size={14} />
                               </button>
