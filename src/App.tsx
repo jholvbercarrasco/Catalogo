@@ -271,7 +271,7 @@ export default function App() {
               className="flex items-center gap-2 text-blue-600 hover:opacity-80 transition-opacity"
             >
               <Store size={28} className="flex-shrink-0" />
-              <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block">MiCatálogo</span>
+              <span className="font-bold text-xl tracking-tight text-gray-900 hidden sm:block">OryzaCamaná</span>
             </button>
           </div>
           
@@ -578,13 +578,24 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-center md:text-left">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">{STORE_CONFIG.name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Oryza Camaná</h3>
               <p className="text-gray-500 text-sm">Tu tienda de confianza para moda y accesorios de calidad en todo el Perú.</p>
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-4">Contacto</h3>
               <ul className="text-gray-500 text-sm space-y-2">
-                <li>WhatsApp: +{STORE_CONFIG.phone}</li>
+                <li className="flex items-center justify-center md:justify-start gap-2">
+                  <span>WhatsApp: +{STORE_CONFIG.phone}</span>
+                  <a 
+                    href={`https://wa.me/${STORE_CONFIG.phone}?text=hola, vengo de la pagina Oriza.`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center bg-green-500 text-white rounded-full p-1 hover:bg-green-600 transition-colors"
+                    title="Chatear por WhatsApp"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                  </a>
+                </li>
                 <li>Email: {STORE_CONFIG.email}</li>
                 <li>Ubicación: {STORE_CONFIG.address}</li>
               </ul>
@@ -592,14 +603,14 @@ export default function App() {
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-4">Síguenos</h3>
               <div className="flex justify-center md:justify-start gap-4">
-                <a href={STORE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">Facebook</a>
-                <a href={STORE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-600 transition-colors">Instagram</a>
-                <a href={STORE_CONFIG.social.tiktok} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition-colors">TikTok</a>
+                <a href={STORE_CONFIG.social.facebook} onClick={(e) => e.preventDefault()} className="text-gray-400 hover:text-blue-600 cursor-default transition-colors">Facebook</a>
+                <a href={STORE_CONFIG.social.instagram} onClick={(e) => e.preventDefault()} className="text-gray-400 hover:text-pink-600 cursor-default transition-colors">Instagram</a>
+                <a href={STORE_CONFIG.social.tiktok} onClick={(e) => e.preventDefault()} className="text-gray-400 hover:text-black cursor-default transition-colors">TikTok</a>
               </div>
             </div>
           </div>
           <div className="pt-8 border-t border-gray-100 text-center text-gray-400 text-xs">
-            <p>&copy; {new Date().getFullYear()} {STORE_CONFIG.name}. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} Oryza Camaná.</p>
           </div>
         </div>
       </footer>

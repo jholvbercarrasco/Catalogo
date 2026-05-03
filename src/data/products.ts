@@ -6,13 +6,14 @@ export interface Measurements {
 
 export interface ProductVariant {
   size: string;
+  color?: string;
   sku: string;
   price: number;
   originalPrice?: number;
   stockCount?: number;
   inStock?: boolean;
   image?: string;
-  colors?: { name: string; hex: string; image?: string; sku?: string }[];
+  colors?: { name: string; hex: string; image?: string; sku?: string; stockCount?: number; inStock?: boolean }[];
 }
 
 export interface Product {
@@ -25,7 +26,7 @@ export interface Product {
   subcategory?: string;
   sizes?: string[];
   variants?: ProductVariant[];
-  colors?: { name: string; hex: string; image?: string; sku?: string }[];
+  colors?: { name: string; hex: string; image?: string; sku?: string; stockCount?: number; inStock?: boolean }[];
   measurements?: Measurements;
   originalPrice?: number;
   sku: string;
@@ -345,6 +346,70 @@ export const products: Product[] = [
       "https://i.postimg.cc/QCW00vW9/Blusa-azul-marino.jpg",
       "https://i.postimg.cc/4yhBBjhW/BLUSA-AZUL-MARINO-2.jpg",
       "https://i.postimg.cc/d1DYtQgx/blusa-azul-marino3.jpg"
+    ]
+  },
+  {
+    id: "m-30011",
+    title: "Blusa camisera Rayas",
+    description: "La blusa a rayas es la prenda ideal para lucir elegante y sofisticada en cualquier ocasión. Su detalle en el cuello y en las mangas le da un toque único y versátil, perfecto para adaptarse a diversas situaciones.\nBotón: dorado\nTemporada: Atemporal\nManga 3/4\nComposición: Lino",
+    price: 50.00,
+    category: "Ropa Mujer",
+    subcategory: "Tallas Grandes",
+    sku: "30011",
+    inStock: true,
+    sizes: ["M", "L", "XL"],
+    variants: [
+      { size: "M", sku: "30018", price: 50.00, stockCount: 1, inStock: true },
+      { size: "L", sku: "30012", price: 50.00, stockCount: 1, inStock: true },
+      { size: "XL", sku: "30011", price: 50.00, stockCount: 1, inStock: true }
+    ],
+    images: [
+      "https://i.postimg.cc/jjSvkwzJ/PRINCIPAL-BLUSA-RAYADA.jpg",
+      "https://i.postimg.cc/1RJdBBGf/Blusa-rayada-mujer.jpg",
+      "https://i.postimg.cc/Kv35TDJ8/detalle-blusa-rayada-(1).jpg"
+    ]
+  },
+  {
+    id: "m-30005",
+    title: "Blusa camisera Dama",
+    description: "La blusa rayada camisera con bolsillo es la prenda ideal para lucir elegante y sofisticada en cualquier ocasión. Su detalle en el cuello y en las mangas le da un toque único y versátil, perfecto para adaptarse a diversas situaciones.\nBotón: blanco cálido\nTemporada: Atemporal\nManga 3/4\nComposición: Lino",
+    price: 55.00,
+    category: "Ropa Mujer",
+    subcategory: "Tallas Grandes",
+    sku: "30005",
+    inStock: true,
+    sizes: ["L"],
+    variants: [
+      { size: "L", sku: "30005", price: 55.00, stockCount: 1, inStock: true }
+    ],
+    images: [
+      "https://i.postimg.cc/L5pxDyvR/Blusa-rayada-blanca.jpg",
+      "https://i.postimg.cc/fyfBrxgS/Blusa-rayada-blanca-modelo.jpg",
+      "https://i.postimg.cc/x1MyxGJr/Detalle-blusa-rayada-blanca.jpg"
+    ]
+  },
+  {
+    id: "m-30007",
+    title: "Blusa de Seda para Dama",
+    description: "La blusa elegante de seda, con cuello corbata",
+    price: 55.00,
+    category: "Ropa Mujer",
+    subcategory: "Tallas Grandes",
+    sku: "30007",
+    inStock: true,
+    sizes: ["L"],
+    colors: [
+      { name: "Verde", hex: "#055E3C", image: "https://i.postimg.cc/P50ZjCD9/blusa-verde-modelo.jpg", stockCount: 1, inStock: true },
+      { name: "Vino", hex: "#731A09", image: "https://i.postimg.cc/D0hHYf6M/blusa-vino-de-seda-modelo.jpg", stockCount: 1, inStock: true }
+    ],
+    variants: [
+      { size: "L", sku: "30007", price: 55.00, stockCount: 2, inStock: true }
+    ],
+    images: [
+      "https://i.postimg.cc/Vk2M8JtT/blusa-verde.jpg",
+      "https://i.postimg.cc/P50ZjCD9/blusa-verde-modelo.jpg",
+      "https://i.postimg.cc/D0hHYf6M/blusa-vino-de-seda-modelo.jpg",
+      "https://i.postimg.cc/htY8tCkS/Generated-Image-May-03-2026-12-47AM.jpg"
     ]
   },
   // === HOGAR ===

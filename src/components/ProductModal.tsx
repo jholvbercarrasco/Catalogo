@@ -13,7 +13,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string; sku?: string; image?: string } | undefined>(undefined);
+  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string; sku?: string; image?: string; stockCount?: number; inStock?: boolean } | undefined>(undefined);
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const isProgrammaticScroll = React.useRef(false);
@@ -95,14 +95,17 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
     setCurrentImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
   };
 
-  const selectedVariant = product.variants?.find(v => v.size === selectedSize);
+  const selectedVariantByColor = product.variants?.find(v => v.size === selectedSize && selectedColor && v.color === selectedColor.name);
+  const selectedVariantBySize = product.variants?.find(v => v.size === selectedSize && !v.color);
+  const selectedVariant = selectedVariantByColor || selectedVariantBySize;
+
   const currentPrice = selectedVariant?.price ?? product.price;
   const currentOriginalPrice = selectedVariant?.originalPrice ?? product.originalPrice;
   const currentSku = selectedVariant?.sku ?? selectedColor?.sku ?? product.sku;
-  const currentInStock = selectedVariant ? (selectedVariant.inStock ?? true) : product.inStock;
+  const currentInStock = selectedColor?.inStock ?? (selectedVariant ? (selectedVariant.inStock ?? true) : product.inStock);
 
-  const currentStockCount = selectedVariant?.stockCount ?? product.stockCount;
-  const currentColors = selectedVariant?.colors ?? product.colors;
+  const currentStockCount = selectedColor?.stockCount ?? selectedVariant?.stockCount ?? product.stockCount;
+  const currentColors = selectedVariantBySize?.colors ?? product.colors;
 
   const discount = currentOriginalPrice && currentOriginalPrice > currentPrice
     ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
@@ -354,6 +357,12 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                       key={color.name}
                       onClick={() => {
                         setSelectedColor(color);
+                        if (color.stockCount !== undefined && quantity > color.stockCount) {
+                          setQuantity(color.stockCount);
+                        } else if (color.stockCount === 0 || color.inStock === false) {
+                          setQuantity(1);
+                        }
+                        
                         if (color.image) {
                           const imgIdx = product.images.findIndex(img => img === color.image);
                           if (imgIdx !== -1) {

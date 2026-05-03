@@ -1,12 +1,12 @@
 export const STORE_CONFIG = {
-  name: "MiCatálogo",
+  name: "Oryza Camaná",
   phone: "51976301883", // Tu número de WhatsApp
   email: "jholvber.carrasco@gmail.com",
-  address: "Lima, Perú",
+  address: "Camaná, Arequipa, Perú",
   social: {
-    instagram: "https://instagram.com/tu_tienda",
-    facebook: "https://facebook.com/tu_tienda",
-    tiktok: "https://tiktok.com/@tu_tienda"
+    instagram: "#",
+    facebook: "#",
+    tiktok: "#"
   },
   shipping: {
     freeThreshold: 150,

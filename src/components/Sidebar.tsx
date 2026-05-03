@@ -152,7 +152,7 @@ export function Sidebar({ isOpen, onClose, onSelectCategory }: SidebarProps) {
             {/* Footer */}
             <div className="p-6 border-t border-gray-100 bg-gray-50">
               <p className="text-xs text-gray-400 text-center">
-                MiCatálogo v1.0 • 2026
+                Oryza Camaná v1.0 • 2026
               </p>
             </div>
           </motion.div>
