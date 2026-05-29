@@ -157,10 +157,36 @@ export default function App() {
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = normalize(searchQuery);
+    const plusSizes = ['XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
+    
     return appProducts
       .filter((p) => {
-        const matchesCategory = filter.category === 'Todos' || p.category === filter.category;
-        const matchesSubcategory = !filter.subcategory || p.subcategory === filter.subcategory;
+        const hasPlusSize = p.sizes?.some(size => 
+          plusSizes.some(ps => size.toUpperCase().includes(ps))
+        );
+
+        // Special logic for "Tallas Grandes"
+        let matchesCategory = false;
+        if (filter.category === 'Todos') {
+          matchesCategory = true;
+        } else if (filter.category === 'Tallas Grandes') {
+          // Main category "Tallas Grandes" shows everything with XL+
+          matchesCategory = hasPlusSize;
+        } else {
+          matchesCategory = p.category === filter.category;
+        }
+
+        // Virtual subcategory logic: "Tallas Grandes" acts as a size filter
+        let matchesSubcategory = false;
+        if (!filter.subcategory) {
+          matchesSubcategory = true;
+        } else if (filter.subcategory === 'Tallas Grandes') {
+          // If subcategory is "Tallas Grandes", we must have an XL+ size
+          matchesSubcategory = hasPlusSize;
+        } else {
+          matchesSubcategory = p.subcategory === filter.subcategory;
+        }
+
         const matchesSearch = normalize(p.title).includes(normalizedQuery) || 
                              normalize(p.description).includes(normalizedQuery);
         return matchesCategory && matchesSubcategory && matchesSearch;

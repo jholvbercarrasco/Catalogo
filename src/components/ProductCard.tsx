@@ -4,7 +4,7 @@ import { ShoppingBag } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
-  onClick: () => void;
+  onClick: (product: Product) => void;
   onAddToCart: (product: Product) => void;
 }
 

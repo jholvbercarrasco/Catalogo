@@ -17,13 +17,17 @@ interface CategoryItem {
 const categories: CategoryItem[] = [
   { 
     name: 'Ropa Mujer', 
-    icon: <Shirt size={20} />, 
-    subcategories: ['Tallas Grandes'] 
+    icon: <Shirt size={20} />,
+    subcategories: ['Tallas Grandes']
   },
   { 
     name: 'Ropa Hombre', 
     icon: <Shirt size={20} />, 
-    subcategories: ['Polos'] 
+    subcategories: ['Polos', 'Tallas Grandes'] 
+  },
+  { 
+    name: 'Tallas Grandes', 
+    icon: <Shirt size={20} /> 
   },
   { 
     name: 'Hogar', 

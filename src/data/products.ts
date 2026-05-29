@@ -548,10 +548,12 @@ export const products: Product[] = [
     colors: [
       { name: "Hueso", hex: "#F3E5D8", image: "https://i.postimg.cc/501vrptX/individual-hueso-oro-2.jpg" },
       { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/GpGW7dMG/individual-negro-(1).jpg" },
-      { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/Bnk85cyC/individual-blanco-(1).jpg" }
+      { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/Bnk85cyC/individual-blanco-(1).jpg" },
+      { name: "Azul", hex: "#1D4ED8", image: "https://i.postimg.cc/XJ2GJqhd/individual-color-azul-polister.jpg" }
     ],
     images: [
       "https://i.postimg.cc/3xmsx3g9/individuales-modernos.jpg",
+      "https://i.postimg.cc/XJ2GJqhd/individual-color-azul-polister.jpg",
       "https://i.postimg.cc/501vrptX/individual-hueso-oro-2.jpg",
       "https://i.postimg.cc/LXRfWvss/individual-hueso-oro.jpg",
       "https://i.postimg.cc/GpGW7dMG/individual-negro-(1).jpg",

@@ -17,7 +17,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const isProgrammaticScroll = React.useRef(false);
-  const scrollTimeout = React.useRef<NodeJS.Timeout>();
+  const scrollTimeout = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const [showShareToast, setShowShareToast] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
@@ -81,9 +81,12 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
       return;
     }
     const container = e.currentTarget;
-    const index = Math.round(container.scrollLeft / container.offsetWidth);
+    const index = Math.round(container.scrollLeft / (container.offsetWidth || 1));
     if (index !== currentImageIndex && index >= 0 && index < product.images.length) {
-      setCurrentImageIndex(index);
+      // Small delay to ensure state update doesn't interrupt native momentum scroll
+      requestAnimationFrame(() => {
+        setCurrentImageIndex(index);
+      });
     }
   };
 
@@ -102,7 +105,12 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
   const currentPrice = selectedVariant?.price ?? product.price;
   const currentOriginalPrice = selectedVariant?.originalPrice ?? product.originalPrice;
   const currentSku = selectedVariant?.sku ?? selectedColor?.sku ?? product.sku;
-  const currentInStock = selectedColor?.inStock ?? (selectedVariant ? (selectedVariant.inStock ?? true) : product.inStock);
+  const currentInStock = selectedColor 
+    ? (selectedColor.inStock !== false) 
+    : (selectedVariant 
+        ? (selectedVariant.inStock !== false) 
+        : (product.inStock !== false)
+      );
 
   const currentStockCount = selectedColor?.stockCount ?? selectedVariant?.stockCount ?? product.stockCount;
   const currentColors = selectedVariantBySize?.colors ?? product.colors;
@@ -171,16 +179,21 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
             <div 
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide bg-white"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide bg-white touch-pan-x overscroll-contain"
+              style={{ 
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch'
+              }}
             >
               {product.images.map((img, idx) => (
-                <div key={idx} className="w-full h-full flex-shrink-0 snap-center flex items-center justify-center">
+                <div key={idx} className="w-full h-full flex-shrink-0 snap-center snap-always flex items-center justify-center">
                   <img
                     src={img}
                     alt={`${product.title} - Imagen ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover select-none pointer-events-none"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                   />
                 </div>
               ))}
@@ -246,7 +259,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
             {product.title} <span className="text-xs sm:text-base font-normal text-gray-400 ml-1">#{currentSku}</span>
           </h2>
           
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-6">
             <div className="flex flex-col">
               {currentOriginalPrice && currentOriginalPrice > currentPrice && (
                 <div className="flex items-center gap-2">
@@ -263,22 +276,6 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                 S/ {currentPrice.toFixed(2)}
               </span>
             </div>
-          </div>
-
-          <div className="prose prose-sm sm:prose-base text-gray-600 mb-3 sm:mb-8 bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-100 flex flex-col items-start transition-all">
-            <p className="leading-snug italic text-[11px] sm:text-base whitespace-pre-line m-0">
-              {isDescriptionExpanded ? product.description : shortDescription}
-            </p>
-            {hasMoreText && (
-              <button 
-                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                className="text-blue-600 hover:text-blue-700 text-[11px] sm:text-sm font-semibold flex items-center gap-1 mt-2 cursor-pointer transition-colors"
-                aria-expanded={isDescriptionExpanded}
-              >
-                {isDescriptionExpanded ? 'Ocultar descripción' : 'Ver más'}
-                <ChevronDown size={14} className={`transition-transform duration-300 ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
-              </button>
-            )}
           </div>
 
           <div className="space-y-3 sm:space-y-6 mb-4 sm:mb-8">
@@ -434,6 +431,22 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                   </span>
                 )}
               </div>
+            </div>
+
+            <div className="prose prose-sm sm:prose-lg text-gray-700 mt-6 bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-100 flex flex-col items-start transition-all">
+              <p className="leading-relaxed text-sm sm:text-lg whitespace-pre-line m-0">
+                {isDescriptionExpanded ? product.description : shortDescription}
+              </p>
+              {hasMoreText && (
+                <button 
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="text-blue-600 hover:text-blue-700 text-xs sm:text-base font-bold flex items-center gap-1.5 mt-3 cursor-pointer transition-colors px-1"
+                  aria-expanded={isDescriptionExpanded}
+                >
+                  {isDescriptionExpanded ? 'Ocultar detalles' : 'Ver descripción completa'}
+                  <ChevronDown size={18} className={`transition-transform duration-300 ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
+                </button>
+              )}
             </div>
           </div>
 
