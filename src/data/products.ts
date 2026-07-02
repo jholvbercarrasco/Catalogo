@@ -35,7 +35,208 @@ export interface Product {
 }
 
 export const products: Product[] = [
+  {
+    id: "m-30025",
+    title: "Conjunto Wafle",
+    description: "Conjunto wafle",
+    price: 65.00,
+    category: "Ropa Mujer",
+    sku: "30025",
+    inStock: true,
+    sizes: ["L"],
+    variants: [
+      {
+        size: "L",
+        sku: "30025-L",
+        price: 65.00,
+        stockCount: 1,
+        inStock: true
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/zfZfkg1b/Generated-Image-July-02-2026-1-31AM.jpg",
+      "https://i.postimg.cc/HLDLtyCy/Generated-Image-July-02-2026-1-34AM.jpg",
+      "https://i.postimg.cc/SKFKGMpz/Generated-Image-July-02-2026-1-37AM.jpg"
+    ]
+  },
+  {
+    id: "m-30024",
+    title: "Blusa Mujer Elibe",
+    description: "Blusa para dama en seda",
+    price: 50.00,
+    category: "Ropa Mujer",
+    subcategory: "Blusas",
+    sku: "30024",
+    inStock: true,
+    sizes: ["L", "XL"],
+    variants: [
+      {
+        size: "L",
+        sku: "30024-L",
+        price: 50.00,
+        stockCount: 1,
+        inStock: true,
+        colors: [
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/8P6TczqX/Generated-Image-July-02-2026-1-10AM.jpg", sku: "30024-L-NEG" }
+        ]
+      },
+      {
+        size: "XL",
+        sku: "30024-XL",
+        price: 50.00,
+        stockCount: 3,
+        inStock: true,
+        colors: [
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/8P6TczqX/Generated-Image-July-02-2026-1-10AM.jpg", sku: "30024-XL-NEG" },
+          { name: "Rosado", hex: "#FFC0CB", image: "https://i.postimg.cc/vHVGTZpq/Generated-Image-July-02-2026-1-03AM.jpg", sku: "30024-XL-ROS" },
+          { name: "Perla", hex: "#EAE0C8", image: "https://i.postimg.cc/L61m58r3/Generated-Image-July-02-2026-1-07AM.jpg", sku: "30024-XL-PER" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/vHVGTZpq/Generated-Image-July-02-2026-1-03AM.jpg",
+      "https://i.postimg.cc/L61m58r3/Generated-Image-July-02-2026-1-07AM.jpg",
+      "https://i.postimg.cc/8P6TczqX/Generated-Image-July-02-2026-1-10AM.jpg"
+    ]
+  },
   // === ROPA HOMBRE ===
+  {
+    id: "h-30027",
+    title: "Casaca Columbia hombre",
+    description: "Casaca columbia importada.",
+    price: 125.00,
+    category: "Ropa Hombre",
+    subcategory: "Casacas",
+    sku: "30027",
+    inStock: true,
+    sizes: ["S", "M", "L", "XL"],
+    variants: [
+      {
+        size: "S",
+        sku: "30027-S",
+        price: 125.00,
+        stockCount: 2,
+        inStock: true,
+        colors: [
+          { name: "Azul acero", hex: "#4682B4", image: "https://i.postimg.cc/sgttQPCT/w-1200-h-1200-fit-pad.webp", sku: "30027-S-AZA" },
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/7ZCFZsdc/Internet-20241209-195605-8.webp", sku: "30027-S-NEG" }
+        ]
+      },
+      {
+        size: "M",
+        sku: "30027-M",
+        price: 125.00,
+        stockCount: 2,
+        inStock: true,
+        colors: [
+          { name: "Azul acero", hex: "#4682B4", image: "https://i.postimg.cc/sgttQPCT/w-1200-h-1200-fit-pad.webp", sku: "30027-M-AZA" },
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/7ZCFZsdc/Internet-20241209-195605-8.webp", sku: "30027-M-NEG" }
+        ]
+      },
+      {
+        size: "L",
+        sku: "30027-L",
+        price: 125.00,
+        stockCount: 2,
+        inStock: true,
+        colors: [
+          { name: "Azul acero", hex: "#4682B4", image: "https://i.postimg.cc/sgttQPCT/w-1200-h-1200-fit-pad.webp", sku: "30027-L-AZA" },
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/7ZCFZsdc/Internet-20241209-195605-8.webp", sku: "30027-L-NEG" }
+        ]
+      },
+      {
+        size: "XL",
+        sku: "30027-XL",
+        price: 135.00,
+        stockCount: 2,
+        inStock: true,
+        colors: [
+          { name: "Azul acero", hex: "#4682B4", image: "https://i.postimg.cc/sgttQPCT/w-1200-h-1200-fit-pad.webp", sku: "30027-XL-AZA" },
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/7ZCFZsdc/Internet-20241209-195605-8.webp", sku: "30027-XL-NEG" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/sgttQPCT/w-1200-h-1200-fit-pad.webp",
+      "https://i.postimg.cc/7ZCFZsdc/Internet-20241209-195605-8.webp",
+      "https://i.postimg.cc/RZjj61xX/w-1200-h-1200-fit-pad-(1).webp"
+    ]
+  },
+  {
+    id: "h-30026",
+    title: "Polo camisero Hombre",
+    description: "Polo camisero para hombre en algodón punto piqué.",
+    price: 45.00,
+    category: "Ropa Hombre",
+    subcategory: "Polo Camisero",
+    sku: "30026",
+    inStock: true,
+    sizes: ["S", "M", "L", "XL"],
+    variants: [
+      {
+        size: "S",
+        sku: "30026-S",
+        price: 45.00,
+        stockCount: 10,
+        inStock: true,
+        colors: [
+          { name: "Azul marino", hex: "#000080", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-S-AZM" },
+          { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/d0Nwxkby/IMG-6538.jpg", sku: "30026-S-BLA" },
+          { name: "Celeste", hex: "#87CEEB", image: "https://i.postimg.cc/VNZmVrxb/IMG-6541.jpg", sku: "30026-S-CEL" },
+          { name: "Anaranjado", hex: "#FFA500", image: "https://i.postimg.cc/wB4gGyCN/IMG-6534.webp", sku: "30026-S-ANA" },
+          { name: "Verde Militar", hex: "#4B5320", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-S-VER" }
+        ]
+      },
+      {
+        size: "M",
+        sku: "30026-M",
+        price: 45.00,
+        stockCount: 10,
+        inStock: true,
+        colors: [
+          { name: "Azul marino", hex: "#000080", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-M-AZM" },
+          { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/d0Nwxkby/IMG-6538.jpg", sku: "30026-M-BLA" },
+          { name: "Celeste", hex: "#87CEEB", image: "https://i.postimg.cc/VNZmVrxb/IMG-6541.jpg", sku: "30026-M-CEL" },
+          { name: "Anaranjado", hex: "#FFA500", image: "https://i.postimg.cc/wB4gGyCN/IMG-6534.webp", sku: "30026-M-ANA" },
+          { name: "Verde Militar", hex: "#4B5320", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-M-VER" }
+        ]
+      },
+      {
+        size: "L",
+        sku: "30026-L",
+        price: 45.00,
+        stockCount: 10,
+        inStock: true,
+        colors: [
+          { name: "Azul marino", hex: "#000080", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-L-AZM" },
+          { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/d0Nwxkby/IMG-6538.jpg", sku: "30026-L-BLA" },
+          { name: "Celeste", hex: "#87CEEB", image: "https://i.postimg.cc/VNZmVrxb/IMG-6541.jpg", sku: "30026-L-CEL" },
+          { name: "Anaranjado", hex: "#FFA500", image: "https://i.postimg.cc/wB4gGyCN/IMG-6534.webp", sku: "30026-L-ANA" },
+          { name: "Verde Militar", hex: "#4B5320", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-L-VER" }
+        ]
+      },
+      {
+        size: "XL",
+        sku: "30026-XL",
+        price: 48.00,
+        stockCount: 10,
+        inStock: true,
+        colors: [
+          { name: "Azul marino", hex: "#000080", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-XL-AZM" },
+          { name: "Blanco", hex: "#FFFFFF", image: "https://i.postimg.cc/d0Nwxkby/IMG-6538.jpg", sku: "30026-XL-BLA" },
+          { name: "Celeste", hex: "#87CEEB", image: "https://i.postimg.cc/VNZmVrxb/IMG-6541.jpg", sku: "30026-XL-CEL" },
+          { name: "Anaranjado", hex: "#FFA500", image: "https://i.postimg.cc/wB4gGyCN/IMG-6534.webp", sku: "30026-XL-ANA" },
+          { name: "Verde Militar", hex: "#4B5320", image: "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif", sku: "30026-XL-VER" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/nLSpPjyY/IMG-6543.avif",
+      "https://i.postimg.cc/d0Nwxkby/IMG-6538.jpg",
+      "https://i.postimg.cc/VNZmVrxb/IMG-6541.jpg",
+      "https://i.postimg.cc/wB4gGyCN/IMG-6534.webp"
+    ]
+  },
   {
     id: "h-30017",
     title: "Polo Clásico Columbia",

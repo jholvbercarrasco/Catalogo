@@ -18,16 +18,12 @@ const categories: CategoryItem[] = [
   { 
     name: 'Ropa Mujer', 
     icon: <Shirt size={20} />,
-    subcategories: ['Tallas Grandes']
+    subcategories: ['Blusas', 'Conjuntos', 'Tallas Grandes']
   },
   { 
     name: 'Ropa Hombre', 
     icon: <Shirt size={20} />, 
-    subcategories: ['Polos', 'Tallas Grandes'] 
-  },
-  { 
-    name: 'Tallas Grandes', 
-    icon: <Shirt size={20} /> 
+    subcategories: ['Casacas', 'Polo Camisero', 'Polos', 'Tallas Grandes'] 
   },
   { 
     name: 'Hogar', 

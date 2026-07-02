@@ -54,48 +54,36 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
     };
   }, []);
 
-  // Sync scroll position when index changes (arrows/thumbnails)
-  useEffect(() => {
+  const scrollToIndex = (index: number) => {
+    setCurrentImageIndex(index);
+    isProgrammaticScroll.current = true;
     if (scrollRef.current) {
-      const container = scrollRef.current;
-      const scrollAmount = container.offsetWidth * currentImageIndex;
-      if (Math.abs(container.scrollLeft - scrollAmount) > 10) {
-        isProgrammaticScroll.current = true;
-        container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-        
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-        scrollTimeout.current = setTimeout(() => {
-          isProgrammaticScroll.current = false;
-        }, 600); // Increased based timeout
-      }
+      scrollRef.current.scrollTo({ left: scrollRef.current.offsetWidth * index, behavior: 'smooth' });
     }
-  }, [currentImageIndex]);
+    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    scrollTimeout.current = setTimeout(() => {
+      isProgrammaticScroll.current = false;
+    }, 800);
+  };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (isProgrammaticScroll.current) {
-      // Extend timeout while actively scrolling programmatically
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        isProgrammaticScroll.current = false;
-      }, 150);
-      return;
-    }
+    if (isProgrammaticScroll.current) return;
+    
     const container = e.currentTarget;
     const index = Math.round(container.scrollLeft / (container.offsetWidth || 1));
     if (index !== currentImageIndex && index >= 0 && index < product.images.length) {
-      // Small delay to ensure state update doesn't interrupt native momentum scroll
-      requestAnimationFrame(() => {
-        setCurrentImageIndex(index);
-      });
+      setCurrentImageIndex(index);
     }
   };
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+    const nextIdx = currentImageIndex === product.images.length - 1 ? 0 : currentImageIndex + 1;
+    scrollToIndex(nextIdx);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+    const prevIdx = currentImageIndex === 0 ? product.images.length - 1 : currentImageIndex - 1;
+    scrollToIndex(prevIdx);
   };
 
   const selectedVariantByColor = product.variants?.find(v => v.size === selectedSize && selectedColor && v.color === selectedColor.name);
@@ -231,7 +219,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
             {product.images.map((img, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
+                onClick={() => scrollToIndex(idx)}
                 className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all snap-center ${
                   currentImageIndex === idx ? 'border-blue-600 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
@@ -304,7 +292,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                         if (variant && variant.image) {
                           const imgIdx = product.images.findIndex(img => img === variant.image);
                           if (imgIdx !== -1) {
-                            setCurrentImageIndex(imgIdx);
+                            scrollToIndex(imgIdx);
                           }
                         }
                       }}
@@ -363,10 +351,10 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
                         if (color.image) {
                           const imgIdx = product.images.findIndex(img => img === color.image);
                           if (imgIdx !== -1) {
-                            setCurrentImageIndex(imgIdx);
+                            scrollToIndex(imgIdx);
                           }
                         } else if (idx < product.images.length) {
-                          setCurrentImageIndex(idx);
+                          scrollToIndex(idx);
                         }
                       }}
                       className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center transition-all ${

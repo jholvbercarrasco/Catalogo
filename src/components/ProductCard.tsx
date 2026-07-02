@@ -56,7 +56,7 @@ export function ProductCard({ product, onClick, onAddToCart }: ProductCardProps)
 
   return (
     <div 
-      onClick={onClick}
+      onClick={() => onClick(product)}
       className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col border border-gray-100"
     >
       {/* Image Container */}

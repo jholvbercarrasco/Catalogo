@@ -60,7 +60,7 @@ export default function App() {
             if (hasVariants) {
               let anyVariantInStock = false;
               variantsUpdates = product.variants!.map(v => {
-                const variantRemoteItem = data.find(item => item["Codigo"] === v.sku);
+                const variantRemoteItem = data.find(item => String(item["Codigo"]) === String(v.sku));
                 if (variantRemoteItem) {
                   const stockVal = variantRemoteItem["Stock Actual"];
                   let parsedStock = 0;
@@ -95,7 +95,7 @@ export default function App() {
               };
             }
 
-            const remoteItem = data.find(item => item["Codigo"] === product.sku);
+            const remoteItem = data.find(item => String(item["Codigo"]) === String(product.sku));
             if (remoteItem) {
               const stockVal = remoteItem["Stock Actual"];
               let parsedStock = 0;
@@ -157,21 +157,22 @@ export default function App() {
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = normalize(searchQuery);
-    const plusSizes = ['XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
+    const plusSizes = ['L', 'XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
     
     return appProducts
       .filter((p) => {
-        const hasPlusSize = p.sizes?.some(size => 
-          plusSizes.some(ps => size.toUpperCase().includes(ps))
-        );
+        const hasPlusSize = p.sizes?.some(size => {
+          const upperSize = size.toUpperCase();
+          return plusSizes.some(ps => upperSize === ps || upperSize.split(/[\s/\-]+/).includes(ps));
+        });
 
         // Special logic for "Tallas Grandes"
         let matchesCategory = false;
         if (filter.category === 'Todos') {
           matchesCategory = true;
         } else if (filter.category === 'Tallas Grandes') {
-          // Main category "Tallas Grandes" shows everything with XL+
-          matchesCategory = hasPlusSize;
+          // Main category "Tallas Grandes" shows everything with L+ or explicitly tagged
+          matchesCategory = hasPlusSize || p.category === 'Tallas Grandes' || p.subcategory === 'Tallas Grandes';
         } else {
           matchesCategory = p.category === filter.category;
         }
@@ -181,8 +182,8 @@ export default function App() {
         if (!filter.subcategory) {
           matchesSubcategory = true;
         } else if (filter.subcategory === 'Tallas Grandes') {
-          // If subcategory is "Tallas Grandes", we must have an XL+ size
-          matchesSubcategory = hasPlusSize;
+          // If subcategory is "Tallas Grandes", we must have an L+ size or be explicitly tagged
+          matchesSubcategory = hasPlusSize || p.subcategory === 'Tallas Grandes' || p.category === 'Tallas Grandes';
         } else {
           matchesSubcategory = p.subcategory === filter.subcategory;
         }
@@ -210,6 +211,17 @@ export default function App() {
     setView('catalog');
   };
 
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    if (window.history.replaceState) {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('product')) {
+        url.searchParams.delete('product');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  };
+
   const addToCart = (product: Product, quantity: number = 1, selectedSize?: string, selectedColor?: { name: string; hex: string; sku?: string }) => {
     setCart(prev => {
       const cartKey = `${product.id}-${selectedSize || ''}-${selectedColor?.name || ''}`;
@@ -233,7 +245,7 @@ export default function App() {
       const initialQty = product.stockCount !== undefined ? Math.min(quantity, product.stockCount) : quantity;
       return [...prev, { ...product, quantity: initialQty, selectedSize, selectedColor }];
     });
-    setSelectedProduct(null);
+    closeProductModal();
     setIsCartOpen(true);
   };
 
@@ -293,6 +305,14 @@ export default function App() {
               onClick={() => {
                 setView('home');
                 setFilter({ category: 'Todos' });
+                if (window.history.replaceState) {
+                  const url = new URL(window.location.href);
+                  if (url.searchParams.has('product')) {
+                    url.searchParams.delete('product');
+                    window.history.replaceState({}, '', url.toString());
+                  }
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="flex items-center gap-2 text-blue-600 hover:opacity-80 transition-opacity"
             >
@@ -510,26 +530,46 @@ export default function App() {
               <div className="space-y-12">
                 {sortOrder === 'relevancia' ? (
                   filter.category === 'Todos' ? (
-                    // Group by Category when viewing all
+                    // Group by Category and then Subcategory when viewing all
                     Array.from(new Set(filteredProducts.map(p => p.category))).map(cat => {
                       const catProducts = filteredProducts.filter(p => p.category === cat);
+                      const subcategories = Array.from(new Set(catProducts.map(p => p.subcategory)));
+                      
                       return (
-                        <div key={cat} className="space-y-6">
+                        <div key={cat} className="space-y-8">
                           <div className="flex items-center gap-4">
                             <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">
                               {cat}
                             </h2>
                             <div className="h-[1px] flex-grow bg-gray-200"></div>
                           </div>
-                          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                            {catProducts.map((product) => (
-                              <ProductCard 
-                                key={product.id} 
-                                product={product} 
-                                onClick={() => setSelectedProduct(product)} 
-                                onAddToCart={addToCart}
-                              />
-                            ))}
+                          
+                          <div className="space-y-8 pl-0 sm:pl-4">
+                            {subcategories.map(sub => {
+                              const subProducts = catProducts.filter(p => p.subcategory === sub);
+                              if (subProducts.length === 0) return null;
+                              return (
+                                <div key={sub || 'otros'} className="space-y-4">
+                                  {sub && (
+                                    <div className="flex items-center gap-3">
+                                      <h3 className="text-lg font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-md">
+                                        {sub}
+                                      </h3>
+                                    </div>
+                                  )}
+                                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                                    {subProducts.map((product) => (
+                                      <ProductCard 
+                                        key={product.id} 
+                                        product={product} 
+                                        onClick={() => setSelectedProduct(product)} 
+                                        onAddToCart={addToCart}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -646,7 +686,7 @@ export default function App() {
         {selectedProduct && (
           <ProductModal 
             product={selectedProduct} 
-            onClose={() => setSelectedProduct(null)} 
+            onClose={closeProductModal} 
             onAddToCart={addToCart}
           />
         )}
