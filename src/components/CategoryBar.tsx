@@ -9,8 +9,8 @@ interface CategoryBarProps {
 const categories = [
   { name: 'Ropa Mujer', icon: <Shirt size={18} /> },
   { name: 'Ropa Hombre', icon: <Shirt size={18} /> },
-  { name: 'Hogar', icon: <Home size={18} /> },
   { name: 'Joyería', icon: <Sparkles size={18} /> },
+  { name: 'Hogar', icon: <Home size={18} /> },
 ];
 
 export function CategoryBar({ onSelectCategory, activeCategory }: CategoryBarProps) {

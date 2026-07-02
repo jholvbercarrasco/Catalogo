@@ -32,15 +32,206 @@ export interface Product {
   sku: string;
   inStock?: boolean;
   stockCount?: number;
+  customTextLabel?: string;
 }
 
 export const products: Product[] = [
+  {
+    id: "m-30033",
+    title: "Blusa Elsy",
+    description: "Blusa Elsy manga larga en seda importada",
+    price: 45.00,
+    category: "Ropa Mujer",
+    subcategory: "Blusas",
+    sku: "30033",
+    inStock: true,
+    sizes: ["L"],
+    variants: [
+      {
+        size: "L",
+        sku: "30033-L",
+        price: 45.00,
+        stockCount: 10,
+        inStock: true,
+        colors: [
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/v853CGWF/elsy-blusa-manga-larga2.jpg", sku: "30033-L-NEG" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/FH6y76jk/Generated-Image-July-02-2026-4-01PM.jpg",
+      "https://i.postimg.cc/v853CGWF/elsy-blusa-manga-larga2.jpg"
+    ]
+  },
+  {
+    id: "m-30032",
+    title: "Blusa Camisera en Lino",
+    description: "Blusa camisera de Lino con manga ¾.",
+    price: 50.00,
+    category: "Ropa Mujer",
+    subcategory: "Blusas",
+    sku: "30032",
+    inStock: true,
+    sizes: ["XL"],
+    variants: [
+      {
+        size: "XL",
+        sku: "30032-XL",
+        price: 50.00,
+        stockCount: 2,
+        inStock: true,
+        colors: [
+          { name: "Camel", hex: "#C19A6B", image: "https://i.postimg.cc/g0JCkVt2/blusa-camenl-de-lino.jpg", sku: "30032-XL-CAM" },
+          { name: "Verde Olivo", hex: "#556B2F", image: "https://i.postimg.cc/SK96BGwX/Generated-Image-July-02-2026-3-21PM.jpg", sku: "30032-XL-VER" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/jS4KMVjs/Generated-Image-July-02-2026-3-14PM.jpg",
+      "https://i.postimg.cc/g0JCkVt2/blusa-camenl-de-lino.jpg",
+      "https://i.postimg.cc/SK96BGwX/Generated-Image-July-02-2026-3-21PM.jpg"
+    ]
+  },
+  {
+    id: "j-30031",
+    title: "Collar con dije letra",
+    description: "Collar en Oro rose con dije de letra, en material 100% xuping",
+    price: 20.00,
+    originalPrice: 25.00,
+    category: "Joyería",
+    subcategory: "Collares",
+    sku: "30031",
+    inStock: true,
+    stockCount: 20,
+    customTextLabel: "Ingresar Letra",
+    images: [
+      "https://i.postimg.cc/qBZ3Z4yg/collar-con-letra.avif"
+    ]
+  },
+  {
+    id: "j-30030",
+    title: "Anillo en Oro rose con piedra Zirconia",
+    description: "Anillo en Oro rose con piedra Zirconia",
+    price: 20.00,
+    originalPrice: 25.00,
+    category: "Joyería",
+    subcategory: "Anillos",
+    sku: "30030",
+    inStock: true,
+    sizes: ["6", "7", "8"],
+    variants: [
+      {
+        size: "6",
+        sku: "30030-6",
+        price: 20.00,
+        originalPrice: 25.00,
+        stockCount: 1,
+        inStock: true
+      },
+      {
+        size: "7",
+        sku: "30030-7",
+        price: 20.00,
+        originalPrice: 25.00,
+        stockCount: 1,
+        inStock: true
+      },
+      {
+        size: "8",
+        sku: "30030-8",
+        price: 20.00,
+        originalPrice: 25.00,
+        stockCount: 1,
+        inStock: true
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/5twy4MXs/IMG-4912.avif",
+      "https://i.postimg.cc/g0vjzPx8/IMG-4914.avif",
+      "https://i.postimg.cc/ZqrnbhWr/IMG-4915.avif"
+    ]
+  },
+  {
+    id: "m-30029",
+    title: "Blusa camisera de Lino",
+    description: "Blusa camisera de Lino con manga ¾ con bordado.",
+    price: 50.00,
+    category: "Ropa Mujer",
+    subcategory: "Blusas",
+    sku: "30029",
+    inStock: true,
+    sizes: ["M", "XL"],
+    variants: [
+      {
+        size: "M",
+        sku: "30029-M",
+        price: 50.00,
+        stockCount: 1,
+        inStock: true
+      },
+      {
+        size: "XL",
+        sku: "30029-XL",
+        price: 55.00,
+        stockCount: 1,
+        inStock: true
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/LXnWkmjg/blusa-bordado-flores-lino.jpg",
+      "https://i.postimg.cc/mDtn3T7D/Generated-Image-July-02-2026-11-57AM.jpg"
+    ]
+  },
+  {
+    id: "m-30028",
+    title: "Blusa de lino Karola 3/4",
+    description: "Blusa mujer con manga ¾ de lino.",
+    price: 50.00,
+    category: "Ropa Mujer",
+    subcategory: "Blusas",
+    sku: "30028",
+    inStock: true,
+    sizes: ["M", "XL"],
+    variants: [
+      {
+        size: "M",
+        sku: "30028-M",
+        price: 50.00,
+        stockCount: 4,
+        inStock: true,
+        colors: [
+          { name: "Rojo", hex: "#FF0000", image: "https://i.postimg.cc/8c71x8W3/Generated-Image-July-02-2026-11-33AM.jpg", sku: "30028-M-ROJ" },
+          { name: "Camel", hex: "#C19A6B", image: "https://i.postimg.cc/wM16nKLp/Generated-Image-July-02-2026-11-24AM.jpg", sku: "30028-M-CAM" },
+          { name: "Verde olivo", hex: "#556B2F", image: "https://i.postimg.cc/FzY9wtcn/Generated-Image-July-02-2026-11-37AM.jpg", sku: "30028-M-VER" },
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/gjxY19Rt/Generated-Image-July-02-2026-11-28AM.jpg", sku: "30028-M-NEG" }
+        ]
+      },
+      {
+        size: "XL",
+        sku: "30028-XL",
+        price: 55.00,
+        stockCount: 1,
+        inStock: true,
+        colors: [
+          { name: "Negro", hex: "#000000", image: "https://i.postimg.cc/gjxY19Rt/Generated-Image-July-02-2026-11-28AM.jpg", sku: "30028-XL-NEG" }
+        ]
+      }
+    ],
+    images: [
+      "https://i.postimg.cc/FzY9wtcn/Generated-Image-July-02-2026-11-37AM.jpg",
+      "https://i.postimg.cc/gjxY19Rt/Generated-Image-July-02-2026-11-28AM.jpg",
+      "https://i.postimg.cc/wM16nKLp/Generated-Image-July-02-2026-11-24AM.jpg",
+      "https://i.postimg.cc/8c71x8W3/Generated-Image-July-02-2026-11-33AM.jpg",
+      "https://i.postimg.cc/Kj1ZCXLq/Generated-Image-July-02-2026-11-42AM.jpg"
+    ]
+  },
   {
     id: "m-30025",
     title: "Conjunto Wafle",
     description: "Conjunto wafle",
     price: 65.00,
     category: "Ropa Mujer",
+    subcategory: "Conjuntos",
     sku: "30025",
     inStock: true,
     sizes: ["L"],
@@ -428,7 +619,7 @@ export const products: Product[] = [
     price: 50.00,
     originalPrice: 65.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30002",
     inStock: true,
     sizes: ["XL"],
@@ -459,7 +650,7 @@ export const products: Product[] = [
     price: 50.00,
     originalPrice: 60.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30006",
     inStock: true,
     sizes: ["L"],
@@ -491,7 +682,7 @@ export const products: Product[] = [
     description: "Deslumbra con elegancia sutil. Esta blusa de corte fluido presenta un delicado acabado escarchado que captura la luz con cada movimiento. Su diseño de cuello redondo y manga corta relajada la convierten en la pieza perfecta para eventos especiales donde el brillo es el protagonista.",
     price: 48.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30008-30009",
     inStock: true,
     sizes: ["L", "XL"],
@@ -535,7 +726,7 @@ export const products: Product[] = [
     price: 45.00,
     originalPrice: 50.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30001",
     inStock: true,
     stockCount: 1,
@@ -555,7 +746,7 @@ export const products: Product[] = [
     description: "La blusa a rayas es la prenda ideal para lucir elegante y sofisticada en cualquier ocasión. Su detalle en el cuello y en las mangas le da un toque único y versátil, perfecto para adaptarse a diversas situaciones.\nBotón: dorado\nTemporada: Atemporal\nManga 3/4\nComposición: Lino",
     price: 50.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30011",
     inStock: true,
     sizes: ["M", "L", "XL"],
@@ -576,7 +767,7 @@ export const products: Product[] = [
     description: "La blusa rayada camisera con bolsillo es la prenda ideal para lucir elegante y sofisticada en cualquier ocasión. Su detalle en el cuello y en las mangas le da un toque único y versátil, perfecto para adaptarse a diversas situaciones.\nBotón: blanco cálido\nTemporada: Atemporal\nManga 3/4\nComposición: Lino",
     price: 55.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30005",
     inStock: true,
     sizes: ["L"],
@@ -595,7 +786,7 @@ export const products: Product[] = [
     description: "La blusa elegante de seda, con cuello corbata",
     price: 55.00,
     category: "Ropa Mujer",
-    subcategory: "Tallas Grandes",
+    subcategory: "Blusas",
     sku: "30007",
     inStock: true,
     sizes: ["L"],

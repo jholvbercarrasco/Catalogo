@@ -157,7 +157,7 @@ export default function App() {
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = normalize(searchQuery);
-    const plusSizes = ['L', 'XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
+    const plusSizes = ['XL', 'XXL', 'XXXL', '2XL', '3XL', '4XL', '5XL'];
     
     return appProducts
       .filter((p) => {
@@ -222,11 +222,11 @@ export default function App() {
     }
   };
 
-  const addToCart = (product: Product, quantity: number = 1, selectedSize?: string, selectedColor?: { name: string; hex: string; sku?: string }) => {
+  const addToCart = (product: Product, quantity: number = 1, selectedSize?: string, selectedColor?: { name: string; hex: string; sku?: string }, customText?: string) => {
     setCart(prev => {
-      const cartKey = `${product.id}-${selectedSize || ''}-${selectedColor?.name || ''}`;
+      const cartKey = `${product.id}-${selectedSize || ''}-${selectedColor?.name || ''}-${customText || ''}`;
       const existingIndex = prev.findIndex(item => 
-        `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}` === cartKey
+        `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}-${item.customText || ''}` === cartKey
       );
 
       if (existingIndex > -1) {
@@ -243,7 +243,7 @@ export default function App() {
         return newCart;
       }
       const initialQty = product.stockCount !== undefined ? Math.min(quantity, product.stockCount) : quantity;
-      return [...prev, { ...product, quantity: initialQty, selectedSize, selectedColor }];
+      return [...prev, { ...product, quantity: initialQty, selectedSize, selectedColor, customText }];
     });
     closeProductModal();
     setIsCartOpen(true);
@@ -251,7 +251,7 @@ export default function App() {
 
   const updateQuantity = (cartKey: string, delta: number) => {
     setCart(prev => prev.map(item => {
-      const itemKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}`;
+      const itemKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}-${item.customText || ''}`;
       if (itemKey === cartKey) {
         let newQty = item.quantity + delta;
         if (item.stockCount !== undefined) {
@@ -266,7 +266,7 @@ export default function App() {
 
   const removeFromCart = (cartKey: string) => {
     setCart(prev => prev.filter(item => {
-      const itemKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}`;
+      const itemKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}-${item.customText || ''}`;
       return itemKey !== cartKey;
     }));
   };

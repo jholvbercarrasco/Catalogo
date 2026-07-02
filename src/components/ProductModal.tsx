@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 interface ProductModalProps {
   product: Product;
   onClose: () => void;
-  onAddToCart: (product: Product, quantity: number, size?: string, color?: { name: string; hex: string }) => void;
+  onAddToCart: (product: Product, quantity: number, size?: string, color?: { name: string; hex: string }, customText?: string) => void;
 }
 
 export function ProductModal({ product, onClose, onAddToCart }: ProductModalProps) {
@@ -14,6 +14,7 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string; sku?: string; image?: string; stockCount?: number; inStock?: boolean } | undefined>(undefined);
+  const [customText, setCustomText] = useState('');
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const isProgrammaticScroll = React.useRef(false);
@@ -375,6 +376,20 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
               </div>
             )}
 
+            {/* Custom Text Selector */}
+            {product.customTextLabel && (
+              <div className="mb-4">
+                <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2">{product.customTextLabel}</label>
+                <input
+                  type="text"
+                  value={customText}
+                  onChange={(e) => setCustomText(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-blue-500 outline-none transition-all text-sm sm:text-base font-medium placeholder:text-gray-400"
+                  placeholder={`Ej. A`}
+                />
+              </div>
+            )}
+
             {/* Quantity Selector */}
             <div className={currentInStock === false ? 'opacity-50 pointer-events-none' : ''}>
               <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-2">{quantityLabel}</label>
@@ -440,18 +455,18 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
 
           <div className="mt-auto pt-4 sm:pt-6 border-t border-gray-100 pb-safe space-y-3 hidden sm:block">
             <button 
-              onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor)}
-              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)}
+              onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor, customText)}
+              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize) || (product.customTextLabel && !customText.trim())}
               className={`w-full flex items-center justify-center gap-2 py-4 px-8 rounded-xl font-bold text-lg transition-colors shadow-sm ${
                 currentInStock === false
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)
+                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize) || (product.customTextLabel && !customText.trim())
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow-md'
               }`}
             >
               <ShoppingCart size={20} />
-              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : 'Añadir a mi pedido'}
+              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : (product.customTextLabel && !customText.trim()) ? 'Ingresa el texto' : 'Añadir a mi pedido'}
             </button>
             
             <button 
@@ -472,18 +487,18 @@ export function ProductModal({ product, onClose, onAddToCart }: ProductModalProp
         <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 p-3 pb-safe z-30 shadow-[0_-8px_15px_rgba(0,0,0,0.05)]">
           <div className="flex flex-col gap-1.5">
             <button 
-              onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor)}
-              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)}
+              onClick={() => onAddToCart(product, quantity, selectedSize, selectedColor, customText)}
+              disabled={currentInStock === false || (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize) || (product.customTextLabel && !customText.trim())}
               className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-base shadow-lg ${
                 currentInStock === false
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize)
+                  : (currentColors && currentColors.length > 0 && !selectedColor) || (product.sizes && product.sizes.length > 0 && !selectedSize) || (product.customTextLabel && !customText.trim())
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
                   : 'bg-blue-600 active:bg-blue-700 text-white shadow-blue-500/20'
               }`}
             >
               <ShoppingCart size={18} />
-              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : 'Añadir a mi pedido'}
+              {currentInStock === false ? 'Producto Agotado' : (currentColors && currentColors.length > 0 && !selectedColor) ? 'Selecciona un color' : (product.sizes && product.sizes.length > 0 && !selectedSize) ? 'Selecciona una talla' : (product.customTextLabel && !customText.trim()) ? 'Ingresa el texto' : 'Añadir a mi pedido'}
             </button>
             <button 
               onClick={onClose}

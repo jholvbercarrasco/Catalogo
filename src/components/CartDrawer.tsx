@@ -7,6 +7,7 @@ export interface CartItem extends Product {
   quantity: number;
   selectedSize?: string;
   selectedColor?: { name: string; hex: string; sku?: string };
+  customText?: string;
 }
 
 import { STORE_CONFIG } from '../constants';
@@ -30,6 +31,7 @@ export function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, onRemove,
         let details = '';
         if (item.selectedSize) details += ` [Talla: ${item.selectedSize}]`;
         if (item.selectedColor) details += ` [Color: ${item.selectedColor.name}]`;
+        if (item.customText) details += ` [Texto: ${item.customText}]`;
         return `- ${item.title} (#${item.selectedColor?.sku || item.sku})${details} (${item.quantity} x S/ ${item.price.toFixed(2)})`;
       }).join('\n') +
       `\n\nTotal: S/ ${total.toFixed(2)}\n\n¿Cómo procedo con el pago?`
@@ -80,7 +82,7 @@ export function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, onRemove,
               ) : (
                 <div className="space-y-6">
                   {items.map((item) => {
-                    const cartKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}`;
+                    const cartKey = `${item.id}-${item.selectedSize || ''}-${item.selectedColor?.name || ''}-${item.customText || ''}`;
                     const discount = item.originalPrice && item.originalPrice > item.price
                       ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
                       : 0;
@@ -111,6 +113,11 @@ export function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, onRemove,
                               <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-600 flex items-center gap-1">
                                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.selectedColor.hex }} />
                                 {item.selectedColor.name}
+                              </span>
+                            )}
+                            {item.customText && (
+                              <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-600">
+                                Texto: {item.customText}
                               </span>
                             )}
                           </div>

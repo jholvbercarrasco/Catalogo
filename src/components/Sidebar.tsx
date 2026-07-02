@@ -26,12 +26,13 @@ const categories: CategoryItem[] = [
     subcategories: ['Casacas', 'Polo Camisero', 'Polos', 'Tallas Grandes'] 
   },
   { 
-    name: 'Hogar', 
-    icon: <Home size={20} /> 
+    name: 'Joyería', 
+    icon: <Sparkles size={20} />,
+    subcategories: ['Anillos', 'Collares']
   },
   { 
-    name: 'Joyería', 
-    icon: <Sparkles size={20} /> 
+    name: 'Hogar', 
+    icon: <Home size={20} /> 
   }
 ];
 
